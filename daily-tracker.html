@@ -1063,7 +1063,7 @@ function renderReportForm(root, user){
   function draw(){
     const rec = getRecordFor(user, selDate);
     const settings = getSettings(user);
-    const duaList = (settings.duas && settings.duas.length ? settings.duas : DEFAULT_DUA_IDS).map(id=>getDuaEntry(settings,id));
+    const duaList = (settings.duas && settings.duas.length ? settings.duas.slice(0,1) : DEFAULT_DUA_IDS.slice(0,1)).map(id=>getDuaEntry(settings,id));
 
     root.innerHTML = `
       <div class="page-head">
@@ -1078,19 +1078,6 @@ function renderReportForm(root, user){
 
       <div class="card" style="margin-top:16px">
         <div class="section-title" style="margin-top:0">
-          <h3>📿 দোয়া (আরবি ও বাংলা অর্থসহ) / Dua Checklist</h3><div class="line"></div>
-          <a href="#/duas" class="btn btn-ghost btn-sm" style="white-space:nowrap">📖 সম্পূর্ণ দোয়া সংগ্রহ</a>
-        </div>
-        <div class="dua-list" id="duaRows"></div>
-        <div class="add-inline">
-          <input type="text" id="newDuaName" placeholder="নিজের দোয়ার শিরোনাম লিখে যোগ করুন...">
-          <button class="btn btn-ghost btn-sm" id="addDuaBtn">যোগ করুন</button>
-        </div>
-        <p class="auth-note" style="margin-top:10px">আরো দোয়া যুক্ত করতে বা তালিকা থেকে বাদ দিতে <a href="#/duas" style="color:var(--green-700);font-weight:600">দোয়া সংগ্রহ</a> পাতায় যান।</p>
-      </div>
-
-      <div class="card" style="margin-top:16px">
-        <div class="section-title" style="margin-top:0">
           <h3>📖 কোরআন তিলাওয়াত</h3><div class="line"></div>
           <a href="#/quran" class="btn btn-ghost btn-sm" style="white-space:nowrap">📗 সম্পূর্ণ কুরআন রুটিন</a>
         </div>
@@ -1098,7 +1085,6 @@ function renderReportForm(root, user){
           <div class="field"><label>পাতা সংখ্যা / Pages read</label><input type="number" min="0" id="quranPages" value="${rec.quran.pages||0}"></div>
           <div class="field"><label>সময় (মিনিট) / Minutes</label><input type="number" min="0" id="quranMinutes" value="${rec.quran.minutes||0}"></div>
         </div>
-        <div id="quranRoutineWrap"></div>
       </div>
 
       <div class="grid cols-2" style="margin-top:16px">
@@ -1138,6 +1124,26 @@ function renderReportForm(root, user){
       <div style="display:flex;gap:10px;margin-top:18px">
         <button class="btn btn-primary" id="saveBtn">💾 রিপোর্ট সংরক্ষণ করুন</button>
         <span id="scoreLive" style="align-self:center;color:var(--ink-600);font-size:13px"></span>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title" style="margin-top:0">
+          <h3>✅ কুরআন চেকলিস্ট</h3><div class="line"></div>
+        </div>
+        <div id="quranRoutineWrap"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title" style="margin-top:0">
+          <h3>📿 দোয়া চেকলিস্ট</h3><div class="line"></div>
+          <a href="#/duas" class="btn btn-ghost btn-sm" style="white-space:nowrap">📖 সম্পূর্ণ দোয়া সংগ্রহ</a>
+        </div>
+        <div class="dua-list" id="duaRows"></div>
+        <div class="add-inline">
+          <input type="text" id="newDuaName" placeholder="নিজের দোয়ার শিরোনাম লিখে যোগ করুন...">
+          <button class="btn btn-ghost btn-sm" id="addDuaBtn">যোগ করুন</button>
+        </div>
+        <p class="auth-note" style="margin-top:10px">আরো দোয়া যুক্ত করতে বা তালিকা থেকে বাদ দিতে <a href="#/duas" style="color:var(--green-700);font-weight:600">দোয়া সংগ্রহ</a> পাতায় যান।</p>
       </div>
     `;
 
@@ -1214,11 +1220,11 @@ function renderReportForm(root, user){
     // quran routine checklist
     const qrWrap = document.getElementById("quranRoutineWrap");
     function drawQuranRoutine(){
+      const routineIds = (settings.quranRoutine && settings.quranRoutine.length ? settings.quranRoutine.slice(0,1) : [1]);
       if(!settings.quranRoutine.length){
-        qrWrap.innerHTML = `<p class="auth-note" style="margin-top:12px">আপনার কোনো নিয়মিত সূরা রুটিন সেট করা নেই। <a href="#/quran" style="color:var(--green-700);font-weight:600">কুরআন রুটিন</a> পাতা থেকে সূরা যোগ করুন।</p>`;
-        return;
+        qrWrap.innerHTML = `<p class="auth-note" style="margin-top:12px">ডিফল্ট একটি সূরা দেখানো হচ্ছে। <a href="#/quran" style="color:var(--green-700);font-weight:600">কুরআন রুটিন</a> পাতা থেকে আপনার পছন্দমতো সূরা যোগ করুন।</p>`;
       }
-      const surahs = settings.quranRoutine.map(n=>getSurah(n)).filter(Boolean);
+      const surahs = routineIds.map(n=>getSurah(n)).filter(Boolean);
       qrWrap.innerHTML = `
         <div class="section-title" style="margin:16px 0 10px"><h3 style="font-size:13.5px">আজকের রুটিন সূরা</h3><div class="line"></div></div>
         <div class="dua-list">
